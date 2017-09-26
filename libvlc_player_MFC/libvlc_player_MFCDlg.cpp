@@ -226,7 +226,7 @@ void Clibvlc_player_MFCDlg::OnBnClickedPlay()
 
 	if (strcmp(char_url, "") == 0)
 	{
-		AfxMessageBox(_T("Input URL is NULL!"));
+		AfxMessageBox(_T("ÊäÈëURLÎª¿Õ£¡"));
 		return;
 	}
 
@@ -285,6 +285,7 @@ void Clibvlc_player_MFCDlg::InitSystem()
 	libvlc_m = NULL;
 	m_curtime.SetWindowText(_T("00:00:00"));
 	m_totaltime.SetWindowText(_T("00:00:00"));
+	GetDlgItem(IDC_BUTTON_PAUSE)->SetWindowText(_T("ÔÝÍ£"));
 	m_progress.SetScrollPos(0);
 	playerState = STATE_PREPARE;
 }
