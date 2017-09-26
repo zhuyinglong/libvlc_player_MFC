@@ -30,6 +30,7 @@ public:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -74,6 +75,11 @@ BEGIN_MESSAGE_MAP(Clibvlc_player_MFCDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PAUSE, &Clibvlc_player_MFCDlg::OnBnClickedButtonPause)
 	ON_WM_TIMER()
 	ON_WM_VSCROLL()
+	ON_WM_DROPFILES()
+	ON_COMMAND(ID_OPEN, &Clibvlc_player_MFCDlg::OnFileOpen)
+	ON_COMMAND(ID_CSDN, &Clibvlc_player_MFCDlg::OnCsdn)
+	ON_COMMAND(ID_ABOUT, &Clibvlc_player_MFCDlg::OnAbout)
+	ON_BN_CLICKED(IDC_INFO, &Clibvlc_player_MFCDlg::OnBnClickedButtonInfo)
 END_MESSAGE_MAP()
 
 
@@ -347,6 +353,7 @@ void Clibvlc_player_MFCDlg::OnTimer(UINT_PTR nIDEvent)
 		duration = (int)(libvlc_media_player_get_length(libvlc_mp));
 		if (duration != 0) 
 		{
+			//change to second
 			tns = duration / 1000;
 			thh = tns / 3600;
 			tmm = (tns % 3600) / 60;
@@ -391,11 +398,11 @@ void Clibvlc_player_MFCDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScro
 				curpos += 10;
 				break;
 			case SB_THUMBPOSITION: // Scroll to absolute position. nPos is the position
-				curpos = nPos;      // of the scroll box at the end of the drag operation.
+				curpos = nPos;// of the scroll box at the end of the drag operation.
 				break;
 
-			case SB_THUMBTRACK:   // Drag scroll box to specified position. nPos is the
-				curpos = nPos;     // position that the scroll box has been dragged to.
+			case SB_THUMBTRACK:// Drag scroll box to specified position. nPos is the
+				curpos = nPos;// position that the scroll box has been dragged to.
 				break;
 		}
 		if (curpos > 100)
@@ -411,4 +418,56 @@ void Clibvlc_player_MFCDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScro
 		libvlc_media_player_set_position(libvlc_mp, f_pos);//设置文件播放位置
 	}
 	CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
+}
+
+
+void Clibvlc_player_MFCDlg::OnDropFiles(HDROP hDropInfo)
+{
+	LPTSTR pFilePathName = (LPTSTR)malloc(MAX_URL_LENGTH);
+	::DragQueryFile(hDropInfo, 0, pFilePathName, MAX_URL_LENGTH);//获取拖放文件的完整文件名
+	m_url.SetWindowText(pFilePathName);
+	::DragFinish(hDropInfo);   //释放Windows为处理文件拖放而分配的内存
+	free(pFilePathName);
+	CDialogEx::OnDropFiles(hDropInfo);
+}
+
+void Clibvlc_player_MFCDlg::OnFileOpen()
+{
+	OnBnClickedButtonUrl();
+}
+
+
+void Clibvlc_player_MFCDlg::OnCsdn()
+{
+	ShellExecuteA(NULL, "open", "http://blog.csdn.net/zhuyinglong2010", NULL, NULL, SW_SHOWNORMAL);
+}
+
+
+void Clibvlc_player_MFCDlg::OnAbout()
+{
+	CAboutDlg dlg;
+	dlg.DoModal();
+}
+
+
+void Clibvlc_player_MFCDlg::OnBnClickedButtonInfo()
+{
+	if (playerState == STATE_PLAY)
+	{
+		CString infostr;
+		infostr.AppendFormat(_T("========视频信息========\r\n"));
+		unsigned video_w = 0, video_h = 0;
+		float framerate = 0;
+		libvlc_video_get_size(libvlc_mp, 0, &video_w, &video_h);
+		framerate = libvlc_media_player_get_fps(libvlc_mp);
+		infostr.AppendFormat(_T("Video Width:%d\r\nVideo Height:%d\r\nVideo Framerate:%f\r\n")
+			, video_w, video_h, framerate);
+
+		infostr.AppendFormat(_T("========音频信息========\r\n"));
+		int channel = 0;
+		channel = libvlc_audio_get_channel(libvlc_mp);
+		infostr.AppendFormat(_T("Audio Channels:%d\r\n"), channel);
+
+		AfxMessageBox(infostr, MB_ICONINFORMATION);
+	}
 }

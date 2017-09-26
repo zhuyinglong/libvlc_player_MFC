@@ -8,6 +8,8 @@
 #include <string>//std::string
 #include "configs.h"//libvlc
 
+#define MAX_URL_LENGTH 100
+
 enum PlayerState {
 	STATE_PREPARE,
 	STATE_PLAY,
@@ -62,6 +64,10 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	// ½ø¶ÈÌõ
 	CScrollBar m_progress;
-//	afx_msg void OnNMThemeChangedScrollbar(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnFileOpen();
+	afx_msg void OnCsdn();
+	afx_msg void OnAbout();
+	afx_msg void OnBnClickedButtonInfo();
 };
